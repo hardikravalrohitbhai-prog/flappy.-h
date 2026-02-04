@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Flappy Game</title>
+<style>
+    body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: black;
+    }
+    canvas {
+        border: 2px solid white;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="game" width="320" height="480"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+// Images
+const bg = new Image();
+bg.src = "images/bg.png";
+
+const bird = new Image();
+bird.src = "images/bird.png";
+
+const pipe = new Image();
+pipe.src = "images/pipe.png";
+
+// Sounds
+const fly = new Audio("sounds/fly.wav");
+const hit = new Audio("sounds/hit.wav");
+
+let birdX = 50;
+let birdY = 200;
+let velocity = 0;
+let gravity = 1.5;
+let jump = -18;
+
+let pipeX = 320;
+let pipeTop = 150;
+let gap = 120;
+let score = 0;
+
+// Controls
+document.addEventListener("keydown", e => {
+    if (e.code === "Space") {
+        velocity = jump;
+        fly.play();
+    }
+});
+
+canvas.addEventListener("click", () => {
+    velocity = jump;
+    fly.play();
+});
+
+function gameLoop() {
+    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+    velocity += gravity;
+    birdY += velocity;
+    ctx.drawImage(bird, birdX, birdY, 34, 24);
+
+    pipeX -= 3;
+    if (pipeX < -50) {
+        pipeX = canvas.width;
+        pipeTop = Math.random() * 200 + 50;
+        score++;
+    }
+
+    ctx.drawImage(pipe, pipeX, 0, 50, pipeTop);
+    ctx.drawImage(pipe, pipeX, pipeTop + gap, 50, canvas.height);
+
+    // Collision
+    if (
+        birdY < 0 || birdY + 24 > canvas.height ||
+        (birdX + 34 > pipeX && birdX < pipeX + 50 &&
+        (birdY < pipeTop || birdY + 24 > pipeTop + gap))
+    ) {
+        hit.play();
+        alert("Game Over! Score: " + score);
+        location.reload();
+    }
+
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText("Score: " + score, 10, 25);
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
